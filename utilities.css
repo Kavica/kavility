@@ -1,0 +1,490 @@
+/*/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                                                            Variables Section Start
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
+:root {
+    /* util-toggle custom properties */
+    --util-toggleThumb: rgb(255,255,255);
+    --util-activeToggleWrapper: rgb(0,123,238);
+    --util-inactiveToggleWrapper: rgb(56,56,56);
+
+    /* util-dd custom properties */
+    --util-dropdown-background-color: #ffffff;
+    --util-dd-height: 4rem;
+    --util-dd-border-color: rgb(230,230,230);
+    --util-dd-highlight-color: rgb(77,195,255);
+
+    /* util-popup custom properties */
+    --util-popup-background-color: #ffffff;
+    --util-popup-button-color: #fe6257;
+    --util-popup-button-font-color: #f4f3f4;
+
+
+}
+/*/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                                                            Variables Section End
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
+
+/*/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                                                            Toggle Section Start
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
+
+.util-toggleWrapper{
+    width: 5rem;
+    height: 2.5rem;
+    padding: 0 2px;
+    border-radius: 3rem;
+    display: flex;
+    align-items: center;
+    transition: all .25s;   
+}
+
+.util-activeToggleWrapper{
+    background-color: var(--util-activeToggleWrapper);
+}
+
+.util-inactiveToggleWrapper{
+    background-color: var(--util-inactiveToggleWrapper);
+}
+
+.util-toggleThumb{
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 50%;
+    cursor: pointer;
+    background-color: var(--util-toggleThumb);
+}
+
+.util-activeToggle{
+    animation: util-activeToggle 0.15s forwards;
+}
+
+@keyframes util-activeToggle {
+    0%{ 
+        transform: translateX(0%);
+    }
+    100%{ 
+        transform: translateX(2.5rem); 
+    }
+}
+
+.util-inactiveToggle{
+    animation: util-inactiveToggle 0.15s forwards;
+}
+
+@keyframes util-inactiveToggle {
+    0%{ 
+        transform: translateX(2.5rem);
+    }
+    100%{ 
+        transform: translateX(0%); 
+    }
+}
+
+/*/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                                                            Toggle Section End
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
+
+/*/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                                                            Date Picker Section Start
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
+
+.util-pickerWrapper{
+    width: 100%;
+    min-height: 3rem;
+    font-size: 1.5rem;
+    box-shadow: 5px 5px 10px 0 rgba(0, 0, 0, 0.4);
+    border-radius: 10px;
+    overflow: hidden;
+
+    border-width: 1px;
+    border-style: solid;
+    border-color: black;
+}
+
+.util-pickerHeader{
+    width: 100%;
+    height: 3rem;
+    display: flex;
+}
+
+.util-pickerInputsWrapper{
+    flex: 1;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.util-pickerToggle{
+    width: 3rem;
+    height: 3rem;
+    padding-left: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    cursor: pointer;
+    
+}
+
+.util-manualDateWrapper{
+    flex: 1;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.util-manualDateWrapper input{
+    padding-bottom: -10px;
+    border-width: 0 0 1px 0;
+    background: transparent;
+    text-align: center;
+}
+.util-monthInput{
+    width: 3rem;
+}
+
+.util-dayInput{
+    width: 3rem;
+}
+
+.util-yearInput{
+    width: 4rem;
+}
+
+/*/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                                                            Date Picker Section End
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
+
+/*/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                                                            Dropdown Section Start
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
+
+.util-dd-wrapper{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: var(--util-dropdown-background-color);
+}
+
+.util-dd-header{
+    width: 100%;
+    height: var(--util-dd-height);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.util-dd-title{
+    font-size: 1.8rem;
+    font-weight: medium;
+    /* font-weight: var(--FontWeightMedium); */
+    flex: 1;
+    text-align: center;
+}
+
+.util-dd-toggle-control-wrapper{
+    width: var(--util-dd-height);
+    height: calc(var(--util-dd-height) - 8px);
+    border-style: solid;
+    border-color: var(--util-dd-border-color);
+    border-width: 0 0 0 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all .3s;
+}
+
+.util-dd-toggle-control-arrow{
+    font-size: 1.6rem;
+    color: var(--util-dd-border-color);
+    transform: rotate(90deg);
+    transition: all .3s;
+}
+
+.util-dd-toggle-control-wrapper:hover{
+    border-color: var(--util-dd-highlight-color);
+}
+
+.util-dd-toggle-control-wrapper:hover .util-dd-toggle-control-arrow{
+    color: var(--util-dd-highlight-color);
+}
+
+.util-dd-arrow-open{
+	animation: util-dd-arrow-open .3s linear forwards;
+}
+
+@keyframes util-dd-arrow-open{
+	0%{
+		transform: rotate(90deg);
+        color: var(--util-dd-border-color);
+	}
+	100%{
+		transform: rotate(-90deg);
+        color: var(--util-dd-highlight-color);
+	}
+}
+
+.util-dd-arrow-closed{
+	animation: util-dd-arrow-closed .3s linear forwards;
+}
+
+@keyframes util-dd-arrow-closed{
+	0%{
+		transform: rotate(-90deg);
+        color: var(--util-dd-highlight-color);
+	}
+	100%{
+		transform: rotate(90deg);
+        color: var(--util-dd-border-color);
+	}
+}
+
+.util-dd-arrow-wrapper-open{
+	animation: util-dd-arrow-wrapper-open .3s linear forwards;
+}
+
+@keyframes util-dd-arrow-wrapper-open{
+	0%{
+		border-color: var(--util-dd-border-color);
+	}
+	100%{
+		border-color: var(--util-dd-highlight-color);
+	}
+}
+
+.util-dd-arrow-wrapper-closed{
+	animation: util-dd-arrow-wrapper-closed .3s linear forwards;
+}
+
+@keyframes util-dd-arrow-wrapper-closed{
+	0%{
+		border-color: var(--util-dd-highlight-color);
+	}
+	100%{
+		border-color: var(--util-dd-border-color);
+	}
+}
+
+.util-dd-collapse{
+    width: 100%;
+    height: 0rem;
+    overflow: hidden;
+    transition: all .3s;
+}
+
+/* .util-dd-collapse-closed{
+    animation: util-dd-collapse-closed .3s linear forwards;
+}
+
+@keyframes util-dd-collapse-closed{
+    0%{
+        height: 100%;
+    }
+    100%{
+        height: 0%;
+    }
+}
+
+.util-dd-collapse-open{
+    animation: util-dd-collapse-open .3s linear forwards;
+}
+
+@keyframes util-dd-collapse-open{
+    0%{
+        height: 0%;
+    }
+    100%{
+        height: 100%;
+    }
+} */
+
+.util-dd-search-wrapper{
+    width: 100%;
+    height: var(--ddHeight);
+}
+
+.util-dd-search{
+    width: 100%;
+    height: var(--ddHeight);
+    border-style: solid;
+    border-color: var(--util-dd-border-color);
+    border-width: 1px 0;
+    padding: 0 1rem;
+    font-size: 1.5rem;
+    outline: none;
+}
+
+.util-dd-nav-wrapper{
+    width: 100%;
+    height: var(--ddHeight);
+    display: flex;
+    align-items: center;
+}
+
+.util-dd-nav-control{
+    width: var(--ddHeight);
+    height: calc(var(--ddHeight) - 8px);
+    border-style: solid;
+    border-color: var(--util-dd-border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    transition: all .3s;
+    cursor: pointer;
+    color: var(--util-dd-border-color);;
+}
+
+.util-dd-nav-control:hover{
+    color: var(--util-dd-highlight-color);
+}
+
+.util-dd-nav-control:nth-child(1), .util-dd-nav-control:nth-child(2){
+    border-width: 0 1px 0 0;
+}
+
+.util-dd-nav-control:nth-child(4), .util-dd-nav-control:nth-child(5){
+    border-width: 0 0 0 1px;
+}
+
+.util-dd-nav-location{
+    flex: 1;
+    font-size: 1.5rem;
+    text-align: center;
+}
+
+.util-dd-entries-wrapper{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.util-dd-entry-wrapper{
+    width: 100%;
+    height: var(--ddHeight);
+    display: flex;
+    align-items: center;
+    border-style: solid;
+    border-color: var(--util-dd-border-color);
+    border-width: 1px 0 0 0;
+    transition: all .3s;
+    cursor: pointer;
+    font-weight: var(--FontWeightMedium);
+}
+
+.util-dd-entry-wrapper:hover{
+    background-color: var(--util-dd-border-color);
+}
+
+.util-dd-entry-wrapper:last-of-type{
+    border-width: 1px 0;
+}
+
+.util-dd-text{
+    flex: 1;
+    height: var(--ddHeight);
+    padding: 0 1rem;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+}
+
+.util-dd-indicator{
+    width: var(--ddHeight);
+    height: calc(var(--ddHeight) - 8px);
+    /* border-style: solid;
+    border-color: rgb(230,230,230);
+    border-width: 0 0 0 1px; */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .3s;
+    font-size: 1.8rem;
+}
+
+/*/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                                                            Dropdown Section End
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
+
+/*/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                                                            Popup Section Start
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
+
+.util-popupBackground{
+    width: 100vw;
+	height: 100vh;
+    top: 0;
+    left: 0;
+	position: absolute;
+	z-index: 999;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	backdrop-filter: blur(5px);
+	overflow: hidden;
+}
+
+.util-popupWrapper{
+    padding: 0 5rem 2rem 5rem;
+	border-radius: 5px;
+	background-color: var(--util-popup-background-color);
+	box-shadow: 0 .75rem 2rem rgba(0, 0, 0, .5);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+.util-popupWrapper *{
+    margin-top: 2rem;
+}
+
+.util-popupWrapper * .util-popupButton{
+    margin-top: 0rem;
+}
+
+.util-popupTitle{
+    font-size: 3rem;
+}
+
+.util-popupMessage{
+    font-size: 1.8rem;
+}
+
+.util-popupButtonWrapper{
+    width: 100%;
+	display: flex;
+	justify-content: space-around;
+}
+
+.util-popupButton{
+	min-width: 10rem;
+	height: 3rem;
+	padding: 0 2rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 1.8rem;
+	background-color: var(--util-popup-button-color);
+	color: var(--util-popup-button-font-color);
+	cursor: pointer;
+	box-shadow: 0 .5rem 1rem rgba(0,0,0,0.2);
+}
+
+.util-popupButton:hover{
+    transform: translateY(-3px);
+    box-shadow: 0 .75rem 2rem rgba(0, 0, 0, .5);
+}
+
+.util-popupButton:active{
+    transform: translateY(-1px);
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,0.2);
+}
+
+/*/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                                                            Popup Section End
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
