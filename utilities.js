@@ -212,6 +212,7 @@ class Util_Toggle{
     // -value is true ('active') or false ('inactive'), sets the initial state of the toggle
     // -settings is a null or a JSON object to customize the colors of this specific toggle
     // -callback is null or a function of your choice. Your function should be setup to receive the value param back
+    // -the key is the label that will be returned with the state when you use a Util_Input_Group
 
     // implementation example:
     // let main = document.querySelector('main')
@@ -233,11 +234,12 @@ class Util_Toggle{
     // root.style.setProperty('--activeToggleWrapper', *your color here*)
     // root.style.setProperty('--inactiveToggleWrapper', *your color here*)
 
-    //to retreive the current value of toggle call: toggle.value
+    //to retrieve the current value of toggle call: toggle.value
 
-    constructor(value, settings, callback){
+    constructor(value, settings, callback, key){
         this._UUID = createUUID(this)
         this._value = value
+        this._key = key
         this._settings = settings
         this._callback = callback
         this._thumbHTML = this.prepareThumbHTML()
@@ -258,6 +260,21 @@ class Util_Toggle{
 
     get value(){
         return this._value
+    }
+
+    get key(){
+        return this._key
+    }
+
+    get keyValue(){
+        return {
+            key: this._key,
+            value: this._value
+        }
+    }
+
+    get uuid(){
+        return this._UUID
     }
 
     set value(value){
@@ -333,6 +350,7 @@ class Util_Popup{
     get associatedUUID(){
         return this._associatedUUID
     }
+
     show(){
         const body = document.querySelector('body')
         body.appendChild(this._HTML)
@@ -424,7 +442,111 @@ class Util_Popup_Button{
     }
 }
 
+class Util_Input_Group{
+    //You must pass this an array of the UUID's that are in this group
+    constructor(inputs){
+        this._UUID = createUUID(this)
+        this._inputs = inputs
+    }
+
+    get values(){
+        let results = {}
+        for(let input of this._inputs){
+            let inputObject = globalObjects[input].keyValue
+            results[inputObject.key] = inputObject.value
+        }
+        return results
+    }
+}
+
 class Util_Input{
+    //label: the text that displays above the input, telling user what the field is for
+    //key: the key associated with the value when retrieving data from object
+    //value: the initial value, can be null
+    //width: custom width for this specific input, can be left blank
+    constructor(label, key, value, width){
+        this._UUID = createUUID(this)
+        this._label = label
+        this._input = null
+        this._key = key
+        this._value = value ? value : ''
+        this._width = width ? width : null
+        this._HTML = this.createHTML()
+    }
+
+    get value(){
+        return this._input.value
+    }
+
+    get key(){
+        return this._key
+    }
+
+    get keyValue(){
+        return {
+            key: this._key,
+            value: this._input.value
+        }
+    }
+
+    get uuid(){
+        return this._UUID
+    }
+
+    get HTMLElement(){
+        return this._HTML
+    }
+
+    createHTML(){
+        const children = []
+
+        const textInput = {
+            type: 'input',
+            value: this._value,
+            attributes: [
+                {
+                    key: 'type',
+                    value: 'text'
+                },
+                {
+                    key: 'required',
+                    value: ''
+                }
+            ]
+        }
+        this._input = createHTMLElement(textInput)
+        if(this._width) this._input.style.width = this._width
+        children.push(this._input)
+
+        const highlight = {
+            type: 'span',
+            class: 'util-textInput-highlight'
+        }
+        children.push(createHTMLElement(highlight))
+        
+        const bar = {
+            type: 'span',
+            class: 'util-textInput-bar'
+        }
+        const barHTML = createHTMLElement(bar)
+        if(this._width) barHTML.style.width = this._width
+        children.push(barHTML)
+        
+        const inputLabel = {
+            type: 'label',
+            innerText: this._label
+        }
+        children.push(createHTMLElement(inputLabel))
+        
+        const inputWrapper = {
+            "UUID": this._UUID, 
+            type: 'div',
+            class: 'util-textInput-wrapper',
+            children: children
+        }
+
+        return createHTMLElement(inputWrapper)
+    }
 
 }
 
