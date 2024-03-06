@@ -18,7 +18,10 @@
     --util-popup-button-color: #fe6257;
     --util-popup-button-font-color: #f4f3f4;
 
-
+   /* util-textInput custom properties */
+    --util-textInput-borderColor: #757575;
+    --util-textInput-activeColor: #000;
+    --util-textInput-labelColor: #999;
 }
 /*/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                                                             Variables Section End
@@ -487,4 +490,100 @@
 
 /*/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                                                             Popup Section End
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
+
+/*/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                                                            Text Input Section Start
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
+
+.util-textInput-wrapper{
+    position: relative;
+}
+
+.util-textInput-wrapper input{
+    font-size: 16px;
+    height: 3rem;
+    padding: 5px 10px 4px 5px;
+    display: block;
+    width: 300px;
+    border: none;
+    border-bottom: 1px solid var(--util-textInput-borderColor);
+}
+
+.util-textInput-wrapper input:focus{
+    outline: none;
+}
+
+.util-textInput-wrapper label{
+    color: var(--util-textInput-labelColor); 
+    font-size: 18px;
+    font-weight: normal;
+    position: absolute;
+    pointer-events: none;
+    left: 5px;
+    top: 5px;
+    transition: 0.2s ease all;
+}
+
+.util-textInput-wrapper input:focus ~ label, input:valid ~ label{
+    top: -26px;
+    font-size: 1.8rem;
+    font-weight: 300;
+    color: var(--util-textInput-activeColor);
+}
+
+.util-textInput-wrapper .util-textInput-bar{
+    position: relative; 
+    display: block; 
+    width: 300px;
+}
+
+.util-textInput-bar:before, .util-textInput-bar:after{
+    content: '';
+    height: 2px; 
+    width: 0;
+    bottom: 1px; 
+    position: absolute;
+    background: var(--util-textInput-activeColor); 
+    transition: 0.2s ease all;
+}
+
+.util-textInput-bar:before {
+    left: 50%;
+}
+
+.util-textInput-bar:after {
+    right: 50%; 
+}
+
+.util-textInput-wrapper input:focus ~ .util-textInput-bar:before, .util-textInput-wrapper input:focus ~ .util-textInput-bar:after {
+    width: 50%;
+}
+
+.util-textInput-wrapper .util-textInput-highlight{
+    position: absolute;
+    height: 60%; 
+    width: 100px; 
+    top: 25%; 
+    left: 0;
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+.util-textInput-wrapper input:focus ~ .util-textInput-wrapper .util-textInput-highlight{
+    animation: util-textInput-highlight-animation 0.3s ease;
+}
+  
+@keyframes util-textInput-highlight-animation {
+    from{ 
+        background: var(--util-textInput-activeColor);
+    }
+    to{
+        width: 0; 
+        background: transparent;
+    }
+}
+
+/*/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                                                            Text Input Section End
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
