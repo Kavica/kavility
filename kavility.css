@@ -18,7 +18,10 @@
     --util-popup-button-color: #fe6257;
     --util-popup-button-font-color: #f4f3f4;
 
-
+   /* util-textInput custom properties */
+    --util-textInput-borderColor: #757575;
+    --util-textInput-activeColor: #000;
+    --util-textInput-labelColor: #999;
 }
 /*/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                                                             Variables Section End
@@ -160,250 +163,11 @@
                                                             Dropdown Section Start
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
 
-.util-dd-wrapper{
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background-color: var(--util-dropdown-background-color);
-}
-
-.util-dd-header{
-    width: 100%;
-    height: var(--util-dd-height);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.util-dropdownDestination{
+    width: 26rem;
+    height: 3rem;
     position: relative;
-}
-
-.util-dd-title{
-    font-size: 1.8rem;
-    font-weight: medium;
-    /* font-weight: var(--FontWeightMedium); */
-    flex: 1;
-    text-align: center;
-}
-
-.util-dd-toggle-control-wrapper{
-    width: var(--util-dd-height);
-    height: calc(var(--util-dd-height) - 8px);
-    border-style: solid;
-    border-color: var(--util-dd-border-color);
-    border-width: 0 0 0 1px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all .3s;
-}
-
-.util-dd-toggle-control-arrow{
-    font-size: 1.6rem;
-    color: var(--util-dd-border-color);
-    transform: rotate(90deg);
-    transition: all .3s;
-}
-
-.util-dd-toggle-control-wrapper:hover{
-    border-color: var(--util-dd-highlight-color);
-}
-
-.util-dd-toggle-control-wrapper:hover .util-dd-toggle-control-arrow{
-    color: var(--util-dd-highlight-color);
-}
-
-.util-dd-arrow-open{
-	animation: util-dd-arrow-open .3s linear forwards;
-}
-
-@keyframes util-dd-arrow-open{
-	0%{
-		transform: rotate(90deg);
-        color: var(--util-dd-border-color);
-	}
-	100%{
-		transform: rotate(-90deg);
-        color: var(--util-dd-highlight-color);
-	}
-}
-
-.util-dd-arrow-closed{
-	animation: util-dd-arrow-closed .3s linear forwards;
-}
-
-@keyframes util-dd-arrow-closed{
-	0%{
-		transform: rotate(-90deg);
-        color: var(--util-dd-highlight-color);
-	}
-	100%{
-		transform: rotate(90deg);
-        color: var(--util-dd-border-color);
-	}
-}
-
-.util-dd-arrow-wrapper-open{
-	animation: util-dd-arrow-wrapper-open .3s linear forwards;
-}
-
-@keyframes util-dd-arrow-wrapper-open{
-	0%{
-		border-color: var(--util-dd-border-color);
-	}
-	100%{
-		border-color: var(--util-dd-highlight-color);
-	}
-}
-
-.util-dd-arrow-wrapper-closed{
-	animation: util-dd-arrow-wrapper-closed .3s linear forwards;
-}
-
-@keyframes util-dd-arrow-wrapper-closed{
-	0%{
-		border-color: var(--util-dd-highlight-color);
-	}
-	100%{
-		border-color: var(--util-dd-border-color);
-	}
-}
-
-.util-dd-collapse{
-    width: 100%;
-    height: 0rem;
-    overflow: hidden;
-    transition: all .3s;
-}
-
-/* .util-dd-collapse-closed{
-    animation: util-dd-collapse-closed .3s linear forwards;
-}
-
-@keyframes util-dd-collapse-closed{
-    0%{
-        height: 100%;
-    }
-    100%{
-        height: 0%;
-    }
-}
-
-.util-dd-collapse-open{
-    animation: util-dd-collapse-open .3s linear forwards;
-}
-
-@keyframes util-dd-collapse-open{
-    0%{
-        height: 0%;
-    }
-    100%{
-        height: 100%;
-    }
-} */
-
-.util-dd-search-wrapper{
-    width: 100%;
-    height: var(--ddHeight);
-}
-
-.util-dd-search{
-    width: 100%;
-    height: var(--ddHeight);
-    border-style: solid;
-    border-color: var(--util-dd-border-color);
-    border-width: 1px 0;
-    padding: 0 1rem;
-    font-size: 1.5rem;
-    outline: none;
-}
-
-.util-dd-nav-wrapper{
-    width: 100%;
-    height: var(--ddHeight);
-    display: flex;
-    align-items: center;
-}
-
-.util-dd-nav-control{
-    width: var(--ddHeight);
-    height: calc(var(--ddHeight) - 8px);
-    border-style: solid;
-    border-color: var(--util-dd-border-color);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.8rem;
-    transition: all .3s;
-    cursor: pointer;
-    color: var(--util-dd-border-color);;
-}
-
-.util-dd-nav-control:hover{
-    color: var(--util-dd-highlight-color);
-}
-
-.util-dd-nav-control:nth-child(1), .util-dd-nav-control:nth-child(2){
-    border-width: 0 1px 0 0;
-}
-
-.util-dd-nav-control:nth-child(4), .util-dd-nav-control:nth-child(5){
-    border-width: 0 0 0 1px;
-}
-
-.util-dd-nav-location{
-    flex: 1;
-    font-size: 1.5rem;
-    text-align: center;
-}
-
-.util-dd-entries-wrapper{
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-}
-
-.util-dd-entry-wrapper{
-    width: 100%;
-    height: var(--ddHeight);
-    display: flex;
-    align-items: center;
-    border-style: solid;
-    border-color: var(--util-dd-border-color);
-    border-width: 1px 0 0 0;
-    transition: all .3s;
-    cursor: pointer;
-    font-weight: var(--FontWeightMedium);
-}
-
-.util-dd-entry-wrapper:hover{
-    background-color: var(--util-dd-border-color);
-}
-
-.util-dd-entry-wrapper:last-of-type{
-    border-width: 1px 0;
-}
-
-.util-dd-text{
-    flex: 1;
-    height: var(--ddHeight);
-    padding: 0 1rem;
-    font-size: 1.5rem;
-    display: flex;
-    align-items: center;
-}
-
-.util-dd-indicator{
-    width: var(--ddHeight);
-    height: calc(var(--ddHeight) - 8px);
-    /* border-style: solid;
-    border-color: rgb(230,230,230);
-    border-width: 0 0 0 1px; */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all .3s;
-    font-size: 1.8rem;
+    background-color: blue;
 }
 
 /*/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -487,4 +251,100 @@
 
 /*/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                                                             Popup Section End
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
+
+/*/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                                                            Text Input Section Start
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
+
+.util-textInput-wrapper{
+    position: relative;
+}
+
+.util-textInput-wrapper input{
+    font-size: 16px;
+    height: 3rem;
+    padding: 5px 10px 4px 5px;
+    display: block;
+    width: 300px;
+    border: none;
+    border-bottom: 1px solid var(--util-textInput-borderColor);
+}
+
+.util-textInput-wrapper input:focus{
+    outline: none;
+}
+
+.util-textInput-wrapper label{
+    color: var(--util-textInput-labelColor); 
+    font-size: 18px;
+    font-weight: normal;
+    position: absolute;
+    pointer-events: none;
+    left: 5px;
+    top: 5px;
+    transition: 0.2s ease all;
+}
+
+.util-textInput-wrapper input:focus ~ label, input:valid ~ label{
+    top: -26px;
+    font-size: 1.8rem;
+    font-weight: 300;
+    color: var(--util-textInput-activeColor);
+}
+
+.util-textInput-wrapper .util-textInput-bar{
+    position: relative; 
+    display: block; 
+    width: 300px;
+}
+
+.util-textInput-bar:before, .util-textInput-bar:after{
+    content: '';
+    height: 2px; 
+    width: 0;
+    bottom: 1px; 
+    position: absolute;
+    background: var(--util-textInput-activeColor); 
+    transition: 0.2s ease all;
+}
+
+.util-textInput-bar:before {
+    left: 50%;
+}
+
+.util-textInput-bar:after {
+    right: 50%; 
+}
+
+.util-textInput-wrapper input:focus ~ .util-textInput-bar:before, .util-textInput-wrapper input:focus ~ .util-textInput-bar:after {
+    width: 50%;
+}
+
+.util-textInput-wrapper .util-textInput-highlight{
+    position: absolute;
+    height: 60%; 
+    width: 100px; 
+    top: 25%; 
+    left: 0;
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+.util-textInput-wrapper input:focus ~ .util-textInput-wrapper .util-textInput-highlight{
+    animation: util-textInput-highlight-animation 0.3s ease;
+}
+  
+@keyframes util-textInput-highlight-animation {
+    from{ 
+        background: var(--util-textInput-activeColor);
+    }
+    to{
+        width: 0; 
+        background: transparent;
+    }
+}
+
+/*/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                                                            Text Input Section End
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
