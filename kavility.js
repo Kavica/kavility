@@ -1,6 +1,7 @@
 const path = '../'
 const root = document.documentElement
 let globalObjects = {}
+let openElement = null
 
 const log = (message) => {
 	console.log(message)
@@ -68,6 +69,7 @@ const createHTMLElement = (data) => {
 	if(data.click) element.addEventListener('click', data.click)
     if(data.blur) element.addEventListener('blur', data.blur)
 	if(data.focus) element.addEventListener('focus', data.focus)
+    if(data.change) element.addEventListener('change', data.change)
 	if(data.innerHTML) element.innerHTML = data.innerHTML
 	if(data.innerText) element.innerText = data.innerText
 	if(data.attribute) element.setAttribute(data.attribute.key, data.attribute.value)
@@ -183,6 +185,27 @@ const JSONRequest = async (method, url, content) =>{
     })
 }
 
+const getFormattedDateAndTime = () =>{
+    const d = new Date()
+	const current_date = `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`
+	const period = d.getHours() >= 12 ? "PM" : "AM"
+	const hour = d.getHours() > 12 ? d.getHours() - 12 : d.getHours()
+	const minutes = d.getMinutes() > 9 ? d.getMinutes() : `0${d.getMinutes()}`
+    return {
+        time: `${hour}:${minutes} ${period}`,
+        date: `${current_date}`
+    }
+}
+
+const updateDate = () =>{
+    const d = new Date()
+	const current_date = `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`
+	const period = d.getHours() >= 12 ? "PM" : "AM"
+	const hour = d.getHours() > 12 ? d.getHours() - 12 : d.getHours()
+	const minutes = d.getMinutes() > 9 ? d.getMinutes() : `0${d.getMinutes()}`
+    document.querySelector('#dateDisplay').innerText = `${hour}:${minutes} ${period} - ${current_date}`
+}
+
 class Util_Toggle{
 
     // this is a toggle switch. it returns a state of true or false
@@ -190,6 +213,7 @@ class Util_Toggle{
     // -value is true ('active') or false ('inactive'), sets the initial state of the toggle
     // -settings is a null or a JSON object to customize the colors of this specific toggle
     // -callback is null or a function of your choice. Your function should be setup to receive the value param back
+    // -the key is the label that will be returned with the state when you use a Util_Input_Group
 
     // implementation example:
     // let main = document.querySelector('main')
@@ -211,11 +235,12 @@ class Util_Toggle{
     // root.style.setProperty('--activeToggleWrapper', *your color here*)
     // root.style.setProperty('--inactiveToggleWrapper', *your color here*)
 
-    //to retreive the current value of toggle call: toggle.value
+    //to retrieve the current value of toggle call: toggle.value
 
-    constructor(value, settings, callback){
+    constructor(value, settings, callback, key){
         this._UUID = createUUID(this)
         this._value = value
+        this._key = key
         this._settings = settings
         this._callback = callback
         this._thumbHTML = this.prepareThumbHTML()
@@ -236,6 +261,21 @@ class Util_Toggle{
 
     get value(){
         return this._value
+    }
+
+    get key(){
+        return this._key
+    }
+
+    get keyValue(){
+        return {
+            key: this._key,
+            value: this._value
+        }
+    }
+
+    get uuid(){
+        return this._UUID
     }
 
     set value(value){
@@ -311,6 +351,7 @@ class Util_Popup{
     get associatedUUID(){
         return this._associatedUUID
     }
+
     show(){
         const body = document.querySelector('body')
         body.appendChild(this._HTML)
@@ -402,156 +443,260 @@ class Util_Popup_Button{
     }
 }
 
-class Util_Input{
+class Util_Input_Group{
+    //You must pass this an array of the UUID's that are in this group
+    constructor(inputs){
+        this._UUID = createUUID(this)
+        this._inputs = inputs
+    }
 
+    get values(){
+        let results = {}
+        for(let input of this._inputs){
+            let inputObject = globalObjects[input].keyValue
+            results[inputObject.key] = inputObject.value
+        }
+        return results
+    }
 }
 
-class Util_DatePicker{
-    constructor(range, setDates){
+class Util_Input{
+    //label: the text that displays above the input, telling user what the field is for
+    //key: the key associated with the value when retrieving data from object
+    //value: the initial value, can be null
+    //width: custom width for this specific input, can be left blank
+    constructor(label, key, value, width){
         this._UUID = createUUID(this)
-        this._range = range
-        this._setDates = setDates
-        this._initialHTML = this.initialHTML()
+        this._label = label
+        this._input = null
+        this._key = key
+        this._value = value ? value : ''
+        this._width = width ? width : null
+        this._HTML = this.createHTML()
+    }
+
+    get value(){
+        return this._input.value
+    }
+
+    get key(){
+        return this._key
+    }
+
+    get keyValue(){
+        return {
+            key: this._key,
+            value: this._input.value
+        }
+    }
+
+    get uuid(){
+        return this._UUID
     }
 
     get HTMLElement(){
-        return this._initialHTML
+        return this._HTML
     }
 
-    initialHTML(){
+    createHTML(){
+        const children = []
+
+        const textInput = {
+            type: 'input',
+            value: this._value,
+            attributes: [
+                {
+                    key: 'type',
+                    value: 'text'
+                },
+                {
+                    key: 'required',
+                    value: ''
+                }
+            ]
+        }
+        this._input = createHTMLElement(textInput)
+        if(this._width) this._input.style.width = this._width
+        children.push(this._input)
+
+        const highlight = {
+            type: 'span',
+            class: 'util-textInput-highlight'
+        }
+        children.push(createHTMLElement(highlight))
         
-        let pickerWrapperHTML = {
-            "UUID": this._UUID, 
-            "type": "div",
-            "class": "util-pickerWrapper",
-            "child": this.createPickerHeader()
+        const bar = {
+            type: 'span',
+            class: 'util-textInput-bar'
         }
-
-        return createHTMLElement(pickerWrapperHTML)
-    }
-
-    createPickerHeader(){
-
-        let children = []
-
-        let pickerInputsWrapperHTML = {
-            "type": "div", 
-            "class": "util-pickerInputsWrapper",
-            "children": this.createDateInputs()
-        }
-        children.push(createHTMLElement(pickerInputsWrapperHTML))
-
-        let pickerToggleHTML = {
-            "type": "div", 
-            "class": "util-pickerToggle",
-            "innerHTML": "&#128197;"
-        }
-        children.push(createHTMLElement(pickerToggleHTML))
-
-        let pickerHeaderHTML = {
-            "UUID": this._UUID, 
-            "type": "div",
-            "class": "util-pickerHeader",
-            "children": children
-        }
-
-        return createHTMLElement(pickerHeaderHTML)
-    }
-
-    createDateInputs(){
-        let children = []
-
-        let htmlone = {
-            "type": "div",
-            "class": "blue", 
-            "innerText": "Enter Date"
-        }
-        children.push(createHTMLElement(htmlone))
-
-        let htmltwo = {
-            "type": "span", 
-            "innerText": " to "
-        }
-        children.push(createHTMLElement(htmltwo))
-
-        let htmlthree = {
-            "type": "div",
-            "class": "blue", 
-            "innerText": "Enter Date"
-        }
-        children.push(createHTMLElement(htmlthree))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        return children
-
-        // let children = []
-        // let count = this._range == true ? 1 : 0
+        const barHTML = createHTMLElement(bar)
+        if(this._width) barHTML.style.width = this._width
+        children.push(barHTML)
         
-        // for(var i = 0; i <= count; i++){
-        //     let inputChildren = []
-        //     if(i == 1){
-        //         let toHTML = {
-        //             "type": "span", 
-        //             "innerText": 'to'
-        //         }
-        //         children.push(createHTMLElement(toHTML))
-        //     }
+        const inputLabel = {
+            type: 'label',
+            innerText: this._label
+        }
+        children.push(createHTMLElement(inputLabel))
+        
+        const inputWrapper = {
+            "UUID": this._UUID, 
+            type: 'div',
+            class: 'util-textInput-wrapper',
+            children: children
+        }
 
-        //     let monthInputHTML = {
-        //         "type": "input",
-        //         "placeholder": "mm", 
-        //         "class": "util-monthInput"
-        //     }
-        //     inputChildren.push(createHTMLElement(monthInputHTML))
-
-        //     let slashHTML = {
-        //         "type": "span",
-        //         "innerText": "/"
-        //     }
-        //     inputChildren.push(createHTMLElement(slashHTML))
-
-        //     let dayInputHTML = {
-        //         "type": "input",
-        //         "placeholder": "dd",
-        //         "class": "util-dayInput"
-        //     }
-        //     inputChildren.push(createHTMLElement(dayInputHTML))
-
-        //     inputChildren.push(createHTMLElement(slashHTML))
-
-        //     let yearInputHTML = {
-        //         "type": "input",
-        //         "placeholder": "yyyy",
-        //         "class": "util-yearInput"
-        //     }
-        //     inputChildren.push(createHTMLElement(yearInputHTML))
-
-        //     let manualInputWrapper = {
-        //         "type": "div", 
-        //         "children": inputChildren,
-        //         "class": "util-manualDateWrapper"
-        //     }
-
-        //     children.push(createHTMLElement(manualInputWrapper))
-
-        // }
-        // return children
+        return createHTMLElement(inputWrapper)
     }
 
 }
+
+// class Util_DatePicker{
+//     constructor(range, setDates){
+//         this._UUID = createUUID(this)
+//         this._range = range
+//         this._setDates = setDates
+//         this._initialHTML = this.initialHTML()
+//     }
+
+//     get HTMLElement(){
+//         return this._initialHTML
+//     }
+
+//     initialHTML(){
+        
+//         let pickerWrapperHTML = {
+//             "UUID": this._UUID, 
+//             "type": "div",
+//             "class": "util-pickerWrapper",
+//             "child": this.createPickerHeader()
+//         }
+
+//         return createHTMLElement(pickerWrapperHTML)
+//     }
+
+//     createPickerHeader(){
+
+//         let children = []
+
+//         let pickerInputsWrapperHTML = {
+//             "type": "div", 
+//             "class": "util-pickerInputsWrapper",
+//             "children": this.createDateInputs()
+//         }
+//         children.push(createHTMLElement(pickerInputsWrapperHTML))
+
+//         let pickerToggleHTML = {
+//             "type": "div", 
+//             "class": "util-pickerToggle",
+//             "innerHTML": "&#128197;"
+//         }
+//         children.push(createHTMLElement(pickerToggleHTML))
+
+//         let pickerHeaderHTML = {
+//             "UUID": this._UUID, 
+//             "type": "div",
+//             "class": "util-pickerHeader",
+//             "children": children
+//         }
+
+//         return createHTMLElement(pickerHeaderHTML)
+//     }
+
+//     createDateInputs(){
+//         let children = []
+
+//         let htmlone = {
+//             "type": "div",
+//             "class": "blue", 
+//             "innerText": "Enter Date"
+//         }
+//         children.push(createHTMLElement(htmlone))
+
+//         let htmltwo = {
+//             "type": "span", 
+//             "innerText": " to "
+//         }
+//         children.push(createHTMLElement(htmltwo))
+
+//         let htmlthree = {
+//             "type": "div",
+//             "class": "blue", 
+//             "innerText": "Enter Date"
+//         }
+//         children.push(createHTMLElement(htmlthree))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//         return children
+
+//         // let children = []
+//         // let count = this._range == true ? 1 : 0
+        
+//         // for(var i = 0; i <= count; i++){
+//         //     let inputChildren = []
+//         //     if(i == 1){
+//         //         let toHTML = {
+//         //             "type": "span", 
+//         //             "innerText": 'to'
+//         //         }
+//         //         children.push(createHTMLElement(toHTML))
+//         //     }
+
+//         //     let monthInputHTML = {
+//         //         "type": "input",
+//         //         "placeholder": "mm", 
+//         //         "class": "util-monthInput"
+//         //     }
+//         //     inputChildren.push(createHTMLElement(monthInputHTML))
+
+//         //     let slashHTML = {
+//         //         "type": "span",
+//         //         "innerText": "/"
+//         //     }
+//         //     inputChildren.push(createHTMLElement(slashHTML))
+
+//         //     let dayInputHTML = {
+//         //         "type": "input",
+//         //         "placeholder": "dd",
+//         //         "class": "util-dayInput"
+//         //     }
+//         //     inputChildren.push(createHTMLElement(dayInputHTML))
+
+//         //     inputChildren.push(createHTMLElement(slashHTML))
+
+//         //     let yearInputHTML = {
+//         //         "type": "input",
+//         //         "placeholder": "yyyy",
+//         //         "class": "util-yearInput"
+//         //     }
+//         //     inputChildren.push(createHTMLElement(yearInputHTML))
+
+//         //     let manualInputWrapper = {
+//         //         "type": "div", 
+//         //         "children": inputChildren,
+//         //         "class": "util-manualDateWrapper"
+//         //     }
+
+//         //     children.push(createHTMLElement(manualInputWrapper))
+
+//         // }
+//         // return children
+//     }
+
+// }
 
 class Util_CheckBox{
 
@@ -570,367 +715,133 @@ class Util_Button{
 }
 
 class Util_Dropdown{
-    constructor(title, data, config = {}){
+    constructor(settings){
+    
+        //required settings
+        this._dataFormat = settings.dataFormat //XML/JSON
+        this._sourceType = settings.sourceType //a URL / prebuilt data
+        this._source = settings.source //the url / data
+
+        //optional settings with default values
+        this._createDestination = settings.createDestination || false
+        this._searchable = settings.searchable || true
+        this._multiselect = settings.multiselect || false
+        this._entriesPerPage = settings.entriesPerPage || 8
+        this._enableAll = settings.enableAll || false
+        this._baseWidth = settings.baseWidth || null
+        this._baseHeight = settings.baseHeight || null
+
+        //optional stylization settings for this specific dropdown. They default to CSS and can be set globally for all instances
+
+
+
+
 
         this._UUID = createUUID(this)
-        this._title = title
-        this._open = false
-        this._data = data
-        // this._config = config || {}
-        
-
-        this._entries = this.createEntries()
-
-        // this._currentCollapseHeight = 0
-        // this._collapseHeight = 0
-        this._page = 1
-        this._pages = 1
-
-        this._pagination = false
-        this._search = false
-
-        this._multiSelect = !!config.multiSelect ? config.multiSelect : false
-        this._limit = !!config.limit ? config.limit : 5
-
-        if(this._data.length > this._limit){
-            this._pagination = true
-            this._search = true
-            this._pages = Math.ceil(this._data.length / this._limit)
-        }
-
-        
-
-        //setup the search
-        //setup the navigation
-            //this should be based on how many data options there are. If there are less than the display amount, then do not show the navigation. I should check for this in the config first. 
-        //setup the catch for the entries, but do not fill it in yet.
-        //set up the selected section. If that is in the config. 
         this._html = this.createHTML()
+        this.formatData()
+
     }
 
     get HTMLElement(){
+        if(this._createDestination){
+            const wrapper = createHTMLElement({
+                type: 'div',
+                class: 'util-dropdownDestination',
+                child: this._html
+            })
+            if(this._baseWidth) wrapper.style.width = this._baseWidth
+            if(this._baseHeight) wrapper.style.height = this._baseHeight
+            return wrapper
+        }
         return this._html
     }
 
-    createHTML(){
-        const children = []
-        //create header
-        children.push(this.createHeaderSection())
+    get keys(){
 
-        //create collapse
-        children.push(this.createCollapseSection())
-
-        //create selected section
-
-        const html = {
-            "type": "div",
-            "class": "util-dd-wrapper",
-            "children": children
-        }
-
-        return createHTMLElement(html)
     }
 
-    createHeaderSection(){
-        const children = []
+    get values(){
 
-        const titleHTML = {
-            "type": "div",
-            "class": "util-dd-title noSelect",
-            "innerText": this._title
+    }
+
+    get keysAndValues(){
+
+    }
+
+    createDestination(){
+
+    }
+
+    async formatData(){
+        let data = null
+        if(this._sourceType == 'URL'){
+            if(this._dataFormat == 'XML'){
+                let result = await XMLRequest('GET', this._source)
+                data = this.XMLToJSON(result)
+            }else{
+                data = await JSONRequest('GET', this._source)
+            }
+        }else if(this._dataFormat == 'XML'){
+            data = this.XMLToJSON(this._source)
+        }else{
+            data = this._source
         }
-        children.push(createHTMLElement(titleHTML))
+        data = data.map(obj => ({...obj, selected: false}))
+        this.createDropdownEntries(data)
+    }
 
-        const arrow = createHTMLElement({
-            "type": "div",
-            "class": "util-dd-toggle-control-arrow",
-            "innerHTML": "&#x2771;"
-        })
-
-        const controlHTML = {
-            "type": "div",
-            "class": "util-dd-toggle-control-wrapper",
-            "children": [arrow]
+    XMLToJSON(XML){
+        const data = []
+        const entries = XML.childNodes
+        for(let entry of entries){
+            data.push({
+                key: entry.getAttribute('key'),
+                value: entry.getAttribute('value')
+            })
         }
-        children.push(createHTMLElement(controlHTML))
+        return data
+    }
 
-        const html = {
-            "UUID": this._UUID,
-            "type": "div",
-            "class": "util-dd-header",
-            "children": children,
-            "click": function (){
-                globalObjects[this.getAttribute('data-UUID')].toggleDropdown()
+    createDropdownEntries(data){
+        console.log(data)
+    }
+
+    createHTML(){
+        // alert('start')
+    }
+
+    // async cleanXML(){
+    // }
+
+   
+}
+
+class Util_Dropdown_Entry{
+
+}
+
+const clickTest = (e) =>{
+    //needs a better name. 
+    //put a couple things in the closeDropdown function to deal with the globals. 
+    //still not a huge fan have resorting to globals. 
+    //something weird is happening when I click off. 
+        //the next time i go to open the dropdown, it does not open. Not until I click twice. 
+    //also need to make the controls noselect. 
+    console.log('click test')
+    let position = e.target
+    while(position.nodeName != '#document'){
+        if(position.nodeName == 'DIV'){
+            if(position.classList.contains('util-dd-wrapper')){
+                let shouldIBeOpen = parseInt(position.getAttribute('data-shouldIBeOpen'))
+                if(openElement === shouldIBeOpen) return console.log(openElement, shouldIBeOpen)
             }
         }
-        return createHTMLElement(html)
+        position = position.parentNode
     }
-
-    createCollapseSection(){
-        const children = []
-
-        //search section
-        children.push(this.createSearchSection())
-
-        //naveigation section
-        children.push(this.createNavigationSection())
-
-        //entries section
-        const entriesSection = {
-            "type": "div",
-            "class": "util-dd-entries-wrapper",
-        }
-        children.push(createHTMLElement(entriesSection))
-
-
-        let html = {
-            "type": "div",
-            "class": "util-dd-collapse",
-            "children": children
-        }
-
-        return createHTMLElement(html)
+    globalObjects[openElement.toString()].closeDropdown()
+    return
+    for(const globalObject in globalObjects){
+        if(globalObjects[globalObject]?._closeWhenClickedOff) globalObjects[globalObject].closeDropdown()
     }
-
-    createSearchSection(){
-        const children = []
-
-        let searchHTML = {
-            "type": "input",
-            "class": "util-dd-search",
-            "placeholder": "Search..."
-        }
-        children.push(createHTMLElement(searchHTML))
-
-        let html = {
-            "type": "div",
-            "class": "util-dd-search-wrapper",
-            "children": children
-        }
-
-        return createHTMLElement(html)
-    }
-
-    createNavigationSection(){
-        const children = []
-
-        let doubleBack = {
-            "type": "div",
-            "id": `${this._UUID}-doubleBack`,
-            "class": "util-dd-nav-control",
-            "innerHTML": "&#x2770;&#x2770;"
-        }
-        children.push(createHTMLElement(doubleBack))
-
-        let back = {
-            "type": "div",
-            "id": `${this._UUID}-back`,
-            "class": "util-dd-nav-control",
-            "innerHTML": "&#x2770;"
-        }
-        children.push(createHTMLElement(back))
-
-        let location = {
-            "type": "div",
-            "id": `${this._UUID}-location`,
-            "class": "util-dd-nav-location",
-            "innerText": `${this._page} of ${this._pages}`
-        }
-        children.push(createHTMLElement(location))
-
-        let forward = {
-            "type": "div",
-            "id": `${this._UUID}-forward`,
-            "class": "util-dd-nav-control",
-            "innerHTML": "&#x2771;"
-        }
-        children.push(createHTMLElement(forward))
-
-        let doubleForward = {
-            "type": "div",
-            "id": `${this._UUID}-doubleForward`,
-            "class": "util-dd-nav-control",
-            "innerHTML": "&#x2771;&#x2771;"
-        }
-        children.push(createHTMLElement(doubleForward))
-
-        let html = {
-            "type": "div",
-            "class": "util-dd-nav-wrapper",
-            "children": children
-        }
-        return createHTMLElement(html)
-    }
-
-    toggleDropdown(){
-        if(this._open){
-            this.closeDropdown()
-        }else{
-            this.openDropdown()
-        }
-        this._open = !this._open
-    }
-
-    openDropdown(){
-        // setTimeout(document.addEventListener("click", this.detectOffClick.bind(this)), 100)
-        // setTimeout(document.addEventListener('click', this.detectOffClick.bind(this)), 10000)
-        const arrow = this._html.querySelector('.util-dd-toggle-control-arrow')
-        const arrowWrapper = this._html.querySelector('.util-dd-toggle-control-wrapper')
-        const collapse = this._html.querySelector('.util-dd-collapse')
-
-        // arrow.classList.remove('util-dd-arrow-closed')
-        arrow.classList.add('util-dd-arrow-open')
-
-        // arrowWrapper.classList.remove('util-dd-arrow-wrapper-closed')
-        arrowWrapper.classList.add('util-dd-arrow-wrapper-open')
-
-        this.insertEntries()
-
-        
-
-        collapse.style.height = this.calculateCollapseHeight()
-
-        setTimeout(function(){ document.addEventListener("click", this.detectOffClick.bind(this)) }, 10000)
-    }
-
-    closeDropdown(){
-        const arrow = this._html.querySelector('.util-dd-toggle-control-arrow')
-        const arrowWrapper = this._html.querySelector('.util-dd-toggle-control-wrapper')
-        const collapse = this._html.querySelector('.util-dd-collapse')
-        
-        arrow.classList.remove('util-dd-arrow-open')
-        arrow.classList.add('util-dd-arrow-closed')
-        arrow.addEventListener('animationend', () =>{
-            this.removeClosingAnimationClasses()
-        })
-
-        arrowWrapper.classList.add('util-dd-arrow-wrapper-closed')
-        arrowWrapper.classList.remove('util-dd-arrow-wrapper-open')
-
-        collapse.style.height = '0rem'
-        
-    }
-
-    removeClosingAnimationClasses(){
-        const arrow = this._html.querySelector('.util-dd-toggle-control-arrow')
-        const arrowWrapper = this._html.querySelector('.util-dd-toggle-control-wrapper')
-
-        arrow.classList.remove('util-dd-arrow-closed')
-        arrowWrapper.classList.remove('util-dd-arrow-wrapper-closed')
-    }
-
-    calculateCollapseHeight(){
-        //need to calculate height of entries
-        //maybe I should break this off into its own func, as I will otherwise do this twice
-        let entryIndecies = this.calculateEntryIndecies()
-        let entryCount = entryIndecies.end - entryIndecies.start
-        //add in search and nav, if that is enabled
-        if(this._pagination) entryCount++
-        if(this._search) entryCount++
-
-        let entryHeight = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--util-dd-height').split('rem')[0])
-        // console.log(entryHeight)
-        
-        //this might be a good time to determine if it goes up or down
-        // return '28rem'
-        return `${entryCount * entryHeight}rem`
-    }
-
-    createEntries(){
-        const children = []
-        for(const entry of this._data){
-            let newEntry = new Util_Dropdown_Item(entry, this._UUID)
-            children.push(newEntry)
-        }
-        return children
-    }
-
-    insertEntries(){
-        let entries = this._html.querySelector('.util-dd-entries-wrapper')
-        // let start = (this._page * this._limit) - this._limit
-        // let end = this._page * this._limit
-        // if(end > this._entries.length) end = this._entries.length
-        // console.log(start, end)
-        let entryIndecies = this.calculateEntryIndecies()
-        for(let i = entryIndecies.start; i < entryIndecies.end; i++){
-            entries.appendChild(this._entries[i].HTMLElement)
-        }
-    }
-
-    calculateEntryIndecies(){
-        let start = (this._page * this._limit) - this._limit
-        let end = this._page * this._limit
-        if(end > this._entries.length) end = this._entries.length
-        return {start, end}
-    }
-
-    detectOffClick(e){
-        console.log(e.target)
-        console.log(this._html)
-        if(e.target !== this._html){
-            console.log('closing')
-            console.log(this)
-            // this.closeDropdown.bind(this)
-            this.closeDropdown()
-        }else{
-            console.log('not closing')
-        }
-    }
-
-    // setTimeout(function(){ document.removeEventListener("click", detectClick); }, 100);
-    // setTimeout(function(){ document.addEventListener("click", detectClick); }, 100);
-
-    // function detectClick(e){
-	// 	var classes = e.target.className.split(" ");
-	// 	for(var i = 0; i < classes.length; i++){
-	// 		if(classes[i].indexOf(uniqueIdentifier) !== -1){
-	// 			return;
-	// 		}else{
-	// 			that.autoRunFunction();
-	// 			that.closeDropdown();
-	// 		}
-	// 	}
-	// }
-}
-
-class Util_Dropdown_Item{
-    constructor(data, parentUUID){
-        this._UUID = createUUID(this)
-        this._data = data
-        this._associatedUUID = parentUUID
-
-        this._html = this.createHTML()
-    }
-
-    get HTMLElement(){
-        return this._html
-    }
-
-    createHTML(){
-        const children = []
-
-        //entry text
-        let text = {
-            "type": "div",
-            "class": "util-dd-text",
-            "innerText": this._data.displayText
-        }
-        children.push(createHTMLElement(text))
-
-        //entry indicator
-        let indicator = {
-            "type": "div",
-            "class": "util-dd-indicator",
-            "innerHTML": "&#10003;"
-        }
-        children.push(createHTMLElement(indicator))
-
-        const html = {
-            "type": "div",
-            "class": "util-dd-entry-wrapper",
-            "children": children
-        }
-
-        return createHTMLElement(html)
-    }
-}
+}   
